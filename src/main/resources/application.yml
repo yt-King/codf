@@ -1,0 +1,34 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    password: root
+    url: jdbc:mysql://150.158.28.238:3306/codf
+#    url: jdbc:mysql://localhost:3306/yt01
+    username: root
+    hikari:
+      max-lifetime: 500000
+  jpa:
+    show-sql: true
+  servlet:
+    multipart:
+      max-file-size: 10MB #最大上传10mb
+      max-request-size: 100MB
+server:
+  port: 8081
+  servlet:
+    session:
+      timeout: 1800s
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.zufe.codf.model
+  configuration:
+    #驼峰命名和数据库中_ 相互转换
+    map-underscore-to-camel-case: true
+    cache-enabled: false
+
+cas:
+  server-url-prefix: https://ehall.ba.cn/cas/login
+  client-host-url: http://loaclhost:8080/
+  authentication-url:  https://ehall.ba.cn/cas/
+  loginType: cas
+  urlPattern: /api/loginByNameAndCardNo

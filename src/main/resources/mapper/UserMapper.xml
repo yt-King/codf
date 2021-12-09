@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.zufe.codf.dao.UserMapper" >
+    <insert id="insertUser" parameterType="com.zufe.codf.model.User">
+        INSERT INTO user
+        <trim prefix="(" suffix=")" suffixOverrides="," >
+            <if test="userName != null" >
+                user_name,
+            </if>
+            <if test="userPass != null" >
+                user_pass,
+            </if>
+            <if test="phone != null" >
+                phone,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides="," >
+            <if test="userName != null" >
+                #{userName},
+            </if>
+            <if test="userPass != null" >
+                #{userPass},
+            </if>
+            <if test="phone != null" >
+                #{phone},
+            </if>
+        </trim>
+    </insert>
+    <select id="login" resultType="Integer" parameterType="com.zufe.codf.model.UserDto">
+        SELECT COUNT(*)
+        FROM user
+        WHERE userName=#{userName} and userPass=#{userPass}
+    </select>
+</mapper>
