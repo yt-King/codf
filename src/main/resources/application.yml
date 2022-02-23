@@ -26,9 +26,4 @@ mybatis:
     map-underscore-to-camel-case: true
     cache-enabled: false
 
-cas:
-  server-url-prefix: https://ehall.ba.cn/cas/login
-  client-host-url: http://loaclhost:8080/
-  authentication-url:  https://ehall.ba.cn/cas/
-  loginType: cas
-  urlPattern: /api/loginByNameAndCardNo
+

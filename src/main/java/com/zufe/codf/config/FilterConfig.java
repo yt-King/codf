@@ -1,5 +1,6 @@
 package com.zufe.codf.config;
 
+
 import com.zufe.codf.filter.ResponseFilter;
 import org.jasig.cas.client.authentication.AuthenticationFilter;
 import org.jasig.cas.client.session.SingleSignOutFilter;
@@ -45,7 +46,7 @@ public class FilterConfig {
         FilterRegistrationBean bean = new FilterRegistrationBean<>(new SingleSignOutFilter());
         bean.setName("CAS Single Sign Out Filter");
         bean.addUrlPatterns("/*");
-        bean.setOrder(1);
+        bean.setOrder(3);
         return bean;
     }
     @Bean
@@ -53,9 +54,9 @@ public class FilterConfig {
         FilterRegistrationBean bean = new FilterRegistrationBean<>(new AuthenticationFilter());
         bean.setName("CASAuthenticationFilter");
         bean.addUrlPatterns("/*");
-        bean.setOrder(2);
+        bean.setOrder(1);
         Map map=new HashMap();
-        map.put("serverName","localhost:8081");
+        map.put("serverName","http://localhost:8081");
         map.put("casServerLoginUrl","http://cas.zufe.edu.cn/cas/login");
         bean.setInitParameters(map);
         return bean;
@@ -65,9 +66,9 @@ public class FilterConfig {
         FilterRegistrationBean bean = new FilterRegistrationBean<>(new Cas20ProxyReceivingTicketValidationFilter());
         bean.setName("CASValidationFilter");
         bean.addUrlPatterns("/*");
-        bean.setOrder(3);
+        bean.setOrder(2);
         Map map=new HashMap();
-        map.put("serverName","localhost:8081");
+        map.put("serverName","http://localhost:8081");
         map.put("casServerUrlPrefix","http://cas.zufe.edu.cn/cas");
         bean.setInitParameters(map);
         return bean;
