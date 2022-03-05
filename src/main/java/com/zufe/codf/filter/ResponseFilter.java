@@ -20,103 +20,36 @@ import java.util.Map;
 @Slf4j
 @WebFilter(urlPatterns = "/*", filterName = "callbackFilter")
 public class ResponseFilter implements Filter {
-
     @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain filterChain)
-            throws IOException, ServletException {
-        MyResponseWrapper responseWrapper = new MyResponseWrapper((HttpServletResponse) response);
-        HttpServletResponse httpServletResponse = (HttpServletResponse)response;
-        HttpServletRequest httpServletRequest = (HttpServletRequest)request;
-        // 这里只拦截返回，直接让请求过去，如果在请求前有处理，可以在这里处理
-        filterChain.doFilter(request, responseWrapper);
-        System.out.println("httpServletRequest.getRequestURL() = " + httpServletRequest.getRequestURL());
-        System.out.println("httpServletResponse.getStatus() = " + httpServletResponse.getStatus());
-        System.out.println("httpServletResponse.getHeader(\"location\") = " + httpServletResponse.getHeader("location"));
-
-        String str = httpServletResponse.getHeader("location");
-        //把返回值输出到客户端
-        if(302==httpServletResponse.getStatus()){
-            responseWrapper.setStatus(200);
-            responseWrapper.setHeader("location","");
-            PrintWriter writer = null;
-            responseWrapper.setCharacterEncoding("UTF-8");
-            responseWrapper.setContentType("application/json; charset=utf-8");
-            try {
-                writer = responseWrapper.getWriter();
-                writer.print(str);
-                System.out.println("str = " + str);
-            } catch (IOException e) {
-                log.error("response error", e);
-            } finally {
-                if (writer != null)
-                    writer.close();
-            }
-        }
-       return;
-    }
-
-
-    private class MyResponseWrapper extends HttpServletResponseWrapper {
-        private ByteArrayOutputStream buffer;
-        private ServletOutputStream out;
-
-        public MyResponseWrapper(HttpServletResponse httpServletResponse) {
-            super(httpServletResponse);
-            buffer = new ByteArrayOutputStream();
-            out = new WrapperOutputStream(buffer);
-        }
-        @Override
-        public ServletOutputStream getOutputStream()
-                throws IOException {
-            return out;
-        }
-
-        @Override
-        public void flushBuffer()
-                throws IOException {
-            if (out != null) {
-                out.flush();
-            }
-        }
-
-        public byte[] getContent()
-                throws IOException {
-            flushBuffer();
-            return buffer.toByteArray();
-        }
-
-        class WrapperOutputStream extends ServletOutputStream {
-            private ByteArrayOutputStream bos;
-
-            public WrapperOutputStream(ByteArrayOutputStream bos) {
-                this.bos = bos;
-            }
-
-            @Override
-            public void write(int b)
-                    throws IOException {
-                bos.write(b);
-            }
-
-            @Override
-            public boolean isReady() {
-                return false;
-            }
-
-            @Override
-            public void setWriteListener(WriteListener arg0) {
-            }
-        }
-    }
-
-    @Override
-    public void init(FilterConfig arg0)
-            throws ServletException {
+    public void init(FilterConfig filterConfig) throws ServletException {
+        Filter.super.init(filterConfig);
     }
 
     @Override
     public void destroy() {
+        Filter.super.destroy();
     }
+
+    @Override
+    public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) throws IOException, ServletException {
+        //设置跨域请求
+        HttpServletResponse response = (HttpServletResponse) res;
+        HttpServletRequest request = (HttpServletRequest) req;
+        //此处ip地址为需要访问服务器的ip及端口号
+        response.setHeader("Access-Control-Allow-Origin", "http://cas.zufe.edu.cn/cas/login");
+        response.setHeader("Access-Control-Allow-Credentials", "true");
+        response.setHeader("Access-Control-Allow-Methods", "GET, HEAD, POST, PUT, DELETE, TRACE, OPTIONS, PATCH");
+        response.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type,Token,Accept, Connection, User-Agent, Cookie");
+        response.setHeader("Access-Control-Max-Age", "3628800");
+
+        if ("OPTIONS".equals(request.getMethod())) {
+            response.setStatus(HttpServletResponse.SC_OK);
+        } else {
+            chain.doFilter(request, response);
+        }
+    }
+
+
 
 }
 

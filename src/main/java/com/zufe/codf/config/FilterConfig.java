@@ -11,6 +11,7 @@ import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -43,10 +44,11 @@ public class FilterConfig {
      */
     @Bean
     public FilterRegistrationBean singleSignOutFilter() {
+        System.out.println("logout");
         FilterRegistrationBean bean = new FilterRegistrationBean<>(new SingleSignOutFilter());
         bean.setName("CAS Single Sign Out Filter");
         bean.addUrlPatterns("/*");
-        bean.setOrder(3);
+        bean.setOrder(0);
         return bean;
     }
     @Bean
@@ -56,7 +58,7 @@ public class FilterConfig {
         bean.addUrlPatterns("/*");
         bean.setOrder(1);
         Map map=new HashMap();
-        map.put("serverName","http://localhost:8081");
+        map.put("serverName","http://150.158.28.238");
         map.put("casServerLoginUrl","http://cas.zufe.edu.cn/cas/login");
         bean.setInitParameters(map);
         return bean;
@@ -68,7 +70,7 @@ public class FilterConfig {
         bean.addUrlPatterns("/*");
         bean.setOrder(2);
         Map map=new HashMap();
-        map.put("serverName","http://localhost:8081");
+        map.put("serverName","http://150.158.28.238");
         map.put("casServerUrlPrefix","http://cas.zufe.edu.cn/cas");
         bean.setInitParameters(map);
         return bean;

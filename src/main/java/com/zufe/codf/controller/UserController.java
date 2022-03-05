@@ -1,4 +1,5 @@
 package com.zufe.codf.controller;
+
 import org.jasig.cas.client.authentication.AttributePrincipal;
 
 import com.zufe.codf.model.User;
@@ -6,14 +7,18 @@ import com.zufe.codf.model.UserDto;
 import com.zufe.codf.service.util.SessionContextUtils;
 import com.zufe.codf.service.util.VertifyCodeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import com.zufe.codf.service.UserService;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
+
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -26,32 +31,39 @@ import java.util.Map;
  * @date 2021/8/27
  * @function：用户控制
  */
-@RestController
+@Controller
 @CrossOrigin
-@RequestMapping(value="/codf")
+@RequestMapping(value = "/codf")
 public class UserController {
     @Autowired
     private UserService userService;
 
     @PostMapping("/insertside")
-    public Map insert(@RequestBody User user)  {
+    public Map insert(@RequestBody User user) {
         Map map = new HashMap();
-        if(user.getUserName()==null||user.getUserPass()==null){
-            map.put("code",0);
-            map.put("msg","用户名或密码不能为空");
+        if (user.getUserName() == null || user.getUserPass() == null) {
+            map.put("code", 0);
+            map.put("msg", "用户名或密码不能为空");
             return map;
         }
         userService.insert(user);
-        map.put("code",1);
-        map.put("msg","注册成功");
+        map.put("code", 1);
+        map.put("msg", "注册成功");
         return map;
     }
 
     @RequestMapping("/login")
-    public Map loginUser(HttpServletRequest request,UserDto user) {
-        AttributePrincipal principal = (AttributePrincipal)request.getUserPrincipal();
+    public Map loginUser(HttpServletRequest request, HttpServletResponse response, UserDto user) throws IOException {
+        AttributePrincipal principal = (AttributePrincipal) request.getUserPrincipal();
         System.out.println("principal = " + principal.getAttributes());
-
+        response.setStatus(200);
+        String url = "http://172.27.113.94:9528/#/administratorlAudit/adHomepage";
+        Cookie[] cookies = request.getCookies();
+        String s = cookies[0].getValue();
+        for (Cookie c : cookies) {
+            System.out.println(c.getName() + "--->" + c.getValue());
+        }
+        response.sendRedirect(url + "?jsessionid=" + s);
 
 //        Map<String, Object> data = new HashMap<>();
 //        //获取请求头中的sessionId，然后根据sessionId来获取session
@@ -93,9 +105,9 @@ public class UserController {
 
 
         Map<String, Object> map = new HashMap<>();
-        map.put("code",1);
-        map.put("msg","登陆成功");
-        map.put("user",principal.toString());
+        map.put("code", 401);
+        map.put("msg", "/experiment");
+        map.put("user", principal.toString());
         return map;
     }
 
@@ -122,23 +134,23 @@ public class UserController {
             //注意，这里是将生成的图片转为base64的格式将返回给前端，而不是直接给张图片的地址。
             //这样获取验证码就是一个请求，而不是一张图片的地址，因为是一个请求，所以可以返回sessionid给前端。
             VertifyCodeUtils.outputImage(w, h, stream, verifyCode);
-            try{
+            try {
 //                String encode = Base64.encode(stream.toByteArray());
-                Map<String,Object> map = new HashMap<>();
-                map.put("img","data:image/png;base64,");
+                Map<String, Object> map = new HashMap<>();
+                map.put("img", "data:image/png;base64,");
                 //返回sessionid给前端，前端只需要在调用登录接口的时候将这个sessionid设置到请求头中即可
-                map.put("sessionId",session.getId());
+                map.put("sessionId", session.getId());
                 return map;
-            }catch (Exception e){
+            } catch (Exception e) {
 
-            }finally{
+            } finally {
                 stream.close();
             }
         } catch (Exception e) {
             System.out.println("验证码获取错误");
         }
-        Map<String,Object> fmap = new HashMap<>();
-        fmap.put("result","验证码获取错误");
+        Map<String, Object> fmap = new HashMap<>();
+        fmap.put("result", "验证码获取错误");
         return fmap;
     }
 }
