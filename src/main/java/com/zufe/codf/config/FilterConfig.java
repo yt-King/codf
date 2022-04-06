@@ -34,7 +34,7 @@ public class FilterConfig {
         filterBean.setFilter(new ResponseFilter());
         filterBean.setOrder(0);
         filterBean.setName("callbackFilter");
-        filterBean.addUrlPatterns("/*");
+        filterBean.addUrlPatterns("/codf/*");
         return filterBean;
     }
     /**
@@ -44,10 +44,9 @@ public class FilterConfig {
      */
     @Bean
     public FilterRegistrationBean singleSignOutFilter() {
-        System.out.println("logout");
         FilterRegistrationBean bean = new FilterRegistrationBean<>(new SingleSignOutFilter());
         bean.setName("CAS Single Sign Out Filter");
-        bean.addUrlPatterns("/*");
+        bean.addUrlPatterns("/codf/*");
         bean.setOrder(0);
         return bean;
     }
@@ -55,7 +54,7 @@ public class FilterConfig {
     public FilterRegistrationBean authenticationFilter() {
         FilterRegistrationBean bean = new FilterRegistrationBean<>(new AuthenticationFilter());
         bean.setName("CASAuthenticationFilter");
-        bean.addUrlPatterns("/*");
+        bean.addUrlPatterns("/codf/*");
         bean.setOrder(1);
         Map map=new HashMap();
         map.put("serverName","http://150.158.28.238");
@@ -67,7 +66,7 @@ public class FilterConfig {
     public FilterRegistrationBean cas20ProxyReceivingTicketValidationFilter() {
         FilterRegistrationBean bean = new FilterRegistrationBean<>(new Cas20ProxyReceivingTicketValidationFilter());
         bean.setName("CASValidationFilter");
-        bean.addUrlPatterns("/*");
+        bean.addUrlPatterns("/codf/*");
         bean.setOrder(2);
         Map map=new HashMap();
         map.put("serverName","http://150.158.28.238");
@@ -79,7 +78,7 @@ public class FilterConfig {
     public FilterRegistrationBean httpServletRequestWrapperFilter() {
         FilterRegistrationBean bean = new FilterRegistrationBean<>(new HttpServletRequestWrapperFilter());
         bean.setName("CASHttpServletRequestWrapperFilter");
-        bean.addUrlPatterns("/*");
+        bean.addUrlPatterns("/codf/*");
         bean.setOrder(4);
         return bean;
     }
