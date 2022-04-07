@@ -1,5 +1,6 @@
 package com.zufe.codf.controller;
 
+import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
 import org.jasig.cas.client.authentication.AttributePrincipal;
 
 import com.zufe.codf.model.User;
@@ -31,7 +32,7 @@ import java.util.Map;
  * @date 2021/8/27
  * @function：用户控制
  */
-@Controller
+@RestController
 @CrossOrigin
 @RequestMapping(value = "/codf")
 public class UserController {
@@ -53,18 +54,8 @@ public class UserController {
     }
 
     @RequestMapping("/login")
-    public Map loginUser(HttpServletRequest request, HttpServletResponse response, UserDto user) throws IOException {
-//        AttributePrincipal principal = (AttributePrincipal) request.getUserPrincipal();
-//        System.out.println("principal = " + principal.getAttributes());
-//        response.setStatus(200);
-//        String url = "http://150.158.28.238/codf/logout";
-//        Cookie[] cookies = request.getCookies();
-//        String s = cookies[0].getValue();
-//        for (Cookie c : cookies) {
-//            System.out.println(c.getName() + "--->" + c.getValue());
-//        }
-//        response.sendRedirect(url + "?jsessionid=" + s);
-
+    public Map loginUser(HttpServletRequest request, HttpServletResponse response,@RequestBody UserDto user) throws IOException {
+        System.out.println("user.toString() = " + user.toString());
         Map<String, Object> data = new HashMap<>();
         //获取请求头中的sessionId，然后根据sessionId来获取session
         String sessionId = request.getHeader("sessionId");
@@ -73,6 +64,7 @@ public class UserController {
         HttpSession session = sessionContext.getSession(sessionId);
         // 验证码
         Object verCode = session.getAttribute("verCode");
+        System.out.println("verCode = " + verCode);
         if (null == verCode) {
             data.put("code", 0);
             data.put("msg", "验证码已失效，请重新输入");
@@ -83,7 +75,9 @@ public class UserController {
         ZoneId zoneId = ZoneId.systemDefault();
         ZonedDateTime zdt = localDateTime.atZone(zoneId);
         Date codeDateTime = Date.from(zdt.toInstant());
-
+        System.out.println("verCodeStr = " + verCodeStr);
+        System.out.println("userService.login(user) = " + userService.login(user));
+        System.out.println("user.getCode() = " + user.getCode());
         if (verCodeStr == null || StringUtils.isEmpty(user.getCode()) || !verCodeStr.equalsIgnoreCase(user.getCode())) {
             data.put("code", 0);
             data.put("msg", "验证码错误");
@@ -98,16 +92,13 @@ public class UserController {
             data.put("msg", "用户名或密码错误");
             return data;
         } else {
+            data.put("code", 200);
+            data.put("msg", "登陆成功");
             //验证成功，删除存储的验证码
             session.removeAttribute("verCode");
             session.removeAttribute("codeTime");
         }
 
-//
-//        Map<String, Object> map = new HashMap<>();
-//        map.put("code", 401);
-//        map.put("msg", "/experiment");
-//        map.put("user", principal.toString());
         return data;
     }
 
@@ -154,6 +145,7 @@ public class UserController {
             response.setContentType("image/jpeg");
 
             String verifyCode = VertifyCodeUtils.generateVerifyCode(4);
+            System.out.println("verifyCode = " + verifyCode);
             // 存入会话session
             HttpSession session = request.getSession(true);
             // 删除以前的
@@ -168,9 +160,9 @@ public class UserController {
             //这样获取验证码就是一个请求，而不是一张图片的地址，因为是一个请求，所以可以返回sessionid给前端。
             VertifyCodeUtils.outputImage(w, h, stream, verifyCode);
             try {
-//                String encode = Base64.encode(stream.toByteArray());
+                String encode = Base64.encode(stream.toByteArray());
                 Map<String, Object> map = new HashMap<>();
-                map.put("img", "data:image/png;base64,");
+                map.put("img", "data:image/png;base64,"+encode);
                 //返回sessionid给前端，前端只需要在调用登录接口的时候将这个sessionid设置到请求头中即可
                 map.put("sessionId", session.getId());
                 return map;

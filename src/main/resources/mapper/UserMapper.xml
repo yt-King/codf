@@ -29,6 +29,6 @@
     <select id="login" resultType="Integer" parameterType="com.zufe.codf.model.UserDto">
         SELECT COUNT(*)
         FROM user
-        WHERE userName=#{userName} and userPass=#{userPass}
+        WHERE user_name=#{userName} and user_pass=#{userPass}
     </select>
 </mapper>
