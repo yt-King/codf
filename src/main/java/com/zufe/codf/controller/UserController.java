@@ -34,7 +34,7 @@ import java.util.Map;
  */
 @RestController
 @CrossOrigin
-@RequestMapping(value = "/codf")
+@RequestMapping(value = "/api/codf")
 public class UserController {
     @Autowired
     private UserService userService;
